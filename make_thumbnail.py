@@ -4,33 +4,52 @@ import pyperclip
 import matplotlib.pyplot as plt
 from PIL import ImageFont, ImageDraw, Image
 
+video_size_ratio = [16, 9]
+
 
 def make_font_img(text):
-    img = np.zeros((200, 400, 3), np.uint8)
+    ratio = 40
+    W, H = video_size_ratio[0] * ratio, video_size_ratio[1] * ratio
+    img = np.zeros((H, W, 3), np.uint8)
     b, g, r, a = 255, 255, 255, 0
 
     fontpath = "C:/Users/thsxo/AppData/Local/Microsoft/Windows/Fonts/210 콤퓨타세탁R.ttf"
-    font = ImageFont.truetype(fontpath, 32)
+    font = ImageFont.truetype(fontpath, 20)
     img_pil = Image.fromarray(img)
     draw = ImageDraw.Draw(img_pil)
-    draw.text((50, 100),  text, font=font, fill=(b, g, r, a))
+    w, h = font.getsize(text)
+    draw.text((0, 0), text, font=font, fill=(b, g, r, a))
+    #draw.text(((W-w)/2, (H-h)/2), text, font=font, fill=(b, g, r, a))
     img = np.array(img_pil)
-
+    img = img[:h, :w]
     cv2.imshow("res", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+    return img
 
-def main():
+
+def main(title_img):
+
+    ratio = 0.1
+    winname = "BG"
 
     BG_img = cv2.imread(
         "C:/Users/thsxo/Desktop/IMG_2199.JPG")
-    w, h, c = BG_img.shape
-    ratio = 0.2
-    winname = "BG"
+    BG_w, BG_h, BG_c = BG_img.shape
+    BG_shape = [BG_w, BG_h, BG_c]
+    BG_shape[0] *= ratio
+    BG_shape[1] *= ratio
+
+    title_w, title_h, title_c = title_img.shape
+    title_shape = [title_w, title_h, title_c]
 
     BG_img = cv2.resize(BG_img, dsize=(
-        int(h*ratio), int(w*ratio)), interpolation=cv2.INTER_AREA)
+        int(BG_shape[1]), int(BG_shape[0])), interpolation=cv2.INTER_AREA)
+
+    BG_img[(int(BG_shape[0]) - title_shape[0])//2:(int(BG_shape[0]) + title_shape[0])//2,
+           (int(BG_shape[1]) - title_shape[1])//2:(int(BG_shape[1]) + title_shape[1])//2] = title_img
+
     cv2.namedWindow(winname, cv2.WINDOW_AUTOSIZE)
     #cv2.moveWindow(winname, 720, 480)
     cv2.imshow(winname, BG_img)
@@ -40,7 +59,8 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    make_font_img("열정! 열정! 열정!!!")
+    title = make_font_img("0123456789")
+    main(title)
 
 
 # import matplotlib.pyplot as plt
