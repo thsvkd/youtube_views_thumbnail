@@ -4,35 +4,28 @@ import pyperclip
 import matplotlib.pyplot as plt
 from PIL import ImageFont, ImageDraw, Image
 
-video_size_ratio = [16, 9]
+
+def make_colorcode(code):
+
+    if code[0] == '#':
+        r = int('0x'+code[1:3], 16)
+        g = int('0x'+code[3:5], 16)
+        b = int('0x'+code[5:7], 16)
+    else:
+        r = int('0x'+code[0:2], 16)
+        g = int('0x'+code[2:4], 16)
+        b = int('0x'+code[4:6], 16)
+    print([r, g, b])
+
+    return [r, g, b]
 
 
-def make_font_img(text):
-    ratio = 40
-    W, H = video_size_ratio[0] * ratio, video_size_ratio[1] * ratio
-    img = np.zeros((H, W, 3), np.uint8)
-    b, g, r, a = 255, 255, 255, 0
-
-    fontpath = "C:/Users/thsxo/AppData/Local/Microsoft/Windows/Fonts/210 콤퓨타세탁R.ttf"
-    font = ImageFont.truetype(fontpath, 20)
-    img_pil = Image.fromarray(img)
-    draw = ImageDraw.Draw(img_pil)
-    w, h = font.getsize(text)
-    draw.text((0, 0), text, font=font, fill=(b, g, r, a))
-    #draw.text(((W-w)/2, (H-h)/2), text, font=font, fill=(b, g, r, a))
-    img = np.array(img_pil)
-    img = img[:h, :w]
-    cv2.imshow("res", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-    return img
-
-
-def main(title_img):
+def make_thumbnail_image(text, font_size, color):
 
     ratio = 0.1
     winname = "BG"
+    r, g, b = make_colorcode(color)
+    a = 0
 
     BG_img = cv2.imread(
         "C:/Users/thsxo/Desktop/IMG_2199.JPG")
@@ -41,26 +34,29 @@ def main(title_img):
     BG_shape[0] *= ratio
     BG_shape[1] *= ratio
 
-    title_w, title_h, title_c = title_img.shape
-    title_shape = [title_w, title_h, title_c]
-
     BG_img = cv2.resize(BG_img, dsize=(
         int(BG_shape[1]), int(BG_shape[0])), interpolation=cv2.INTER_AREA)
 
-    BG_img[(int(BG_shape[0]) - title_shape[0])//2:(int(BG_shape[0]) + title_shape[0])//2,
-           (int(BG_shape[1]) - title_shape[1])//2:(int(BG_shape[1]) + title_shape[1])//2] = title_img
+    fontpath = "C:/Users/thsxo/AppData/Local/Microsoft/Windows/Fonts/210 콤퓨타세탁R.ttf"
+    font = ImageFont.truetype(fontpath, 44)
+    img_pil = Image.fromarray(BG_img)
+    draw = ImageDraw.Draw(img_pil)
+    w, h = font.getsize(text)
+    draw.text(((int(BG_shape[1]) - w)/2, ((int(BG_shape[0]) - h)/2)),
+              text, font=font, fill=(b, g, r, a))
+    BG_img = np.array(img_pil)
 
     cv2.namedWindow(winname, cv2.WINDOW_AUTOSIZE)
     #cv2.moveWindow(winname, 720, 480)
+
     cv2.imshow(winname, BG_img)
 
     cv2.waitKey(0)
 
 
 if __name__ == "__main__":
-    # main()
-    title = make_font_img("0123456789")
-    main(title)
+
+    make_thumbnail_image("이 영상의 조회수는 123입니다", 44, "b52b65")
 
 
 # import matplotlib.pyplot as plt
