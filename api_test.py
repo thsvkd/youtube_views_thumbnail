@@ -14,7 +14,7 @@ from oauth2client.file import Storage
 # tab of
 #   https://cloud.google.com/console
 # Please ensure that you have enabled the YouTube Data API for your project.
-DEVELOPER_KEY = "AIzaSyBk2v0fQ8Uqwu04jD4aqa-bFFX7ucGS8Gs"
+DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
