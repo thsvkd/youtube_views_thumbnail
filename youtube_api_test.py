@@ -10,15 +10,22 @@ from oauth2client.tools import argparser, run_flow
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 
+#
+#
+#
 # Set DEVELOPER_KEY to the API key value from the APIs & auth > Registered apps
 # tab of
 #   https://cloud.google.com/console
 # Please ensure that you have enabled the YouTube Data API for your project.
+#
+#
+#
+
 DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-CLIENT_SECRETS_FILE = "client_secrets.json"
+CLIENT_SECRETS_FILE = "client_secret_206723419567-j31l9eureab62ojm0cp3b3e0pgtqpfdd.apps.googleusercontent.com.json"
 MISSING_CLIENT_SECRETS_MESSAGE = """
 WARNING: Please configure OAuth 2.0
 
@@ -37,7 +44,17 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
 
-def get_video_list():
+#
+#
+#
+#
+
+
+def get_video_list(json_file):
+    json_file = open(json_file, 'r')
+    json_file = json_file.read()
+    print(json_file)
+
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
                                    message=MISSING_CLIENT_SECRETS_MESSAGE,
                                    scope=YOUTUBE_READONLY_SCOPE)
@@ -126,6 +143,9 @@ if __name__ == "__main__":
     argparser.add_argument("--q", help="Search term", default="Google")
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
+
+    get_video_list(
+        "client_secret_206723419567-j31l9eureab62ojm0cp3b3e0pgtqpfdd.apps.googleusercontent.com.json")
 
     try:
         youtube_search(args)
