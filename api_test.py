@@ -37,7 +37,7 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
 
-def sd():
+def get_video_list():
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
                                    message=MISSING_CLIENT_SECRETS_MESSAGE,
                                    scope=YOUTUBE_READONLY_SCOPE)
