@@ -106,6 +106,9 @@ def get_video_list(json_file):
 
 
 def youtube_search(options):
+    p = open("api_key")
+    DEVELOPER_KEY = p.readline()
+
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                     developerKey=DEVELOPER_KEY)
 
@@ -144,8 +147,8 @@ if __name__ == "__main__":
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
 
-    get_video_list(
-        "client_secret_206723419567-j31l9eureab62ojm0cp3b3e0pgtqpfdd.apps.googleusercontent.com.json")
+    # get_video_list(
+    #     "client_secret_206723419567-j31l9eureab62ojm0cp3b3e0pgtqpfdd.apps.googleusercontent.com.json")
 
     try:
         youtube_search(args)
