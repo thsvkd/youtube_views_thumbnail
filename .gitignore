@@ -35,7 +35,8 @@ client_secrets.json
 api_key_thsvkd
 
 #Oauthv2 token file
-youtube_api_test.py-oauth2.json
 thumbnail_generator.py-oauth2.json
+youtube_api_test.py-oauth2.json
+
 
 # End of https://www.toptal.com/developers/gitignore/api/windows
