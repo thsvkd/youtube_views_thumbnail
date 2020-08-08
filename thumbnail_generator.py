@@ -1,3 +1,4 @@
+import platform
 import numpy as np
 from datetime import datetime
 from enum import Enum
@@ -15,9 +16,10 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 
 user_name = getpass.getuser()
+platform_name = platform.system()
 
 youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd", "r").readline()
-youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets.json"
+youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
@@ -94,14 +96,18 @@ def get_font_truetype(font_size, font_style):
     # This function returns the font that corresponds to that font when you enter a font name.
     # (The path only applies to Windows!)
 
-    ttf_fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.ttf" % (
-        user_name,
-        font_style,
-    )
-    otf_fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.otf" % (
-        user_name,
-        font_style,
-    )
+    if platform_name == "Windows":
+        ttf_fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.ttf" % (
+            user_name,
+            font_style,
+        )
+        otf_fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.otf" % (
+            user_name,
+            font_style,
+        )
+    elif platform_name == "Linux":
+        ttf_fontpath = "/usr/share/fonts/truetype/%s.ttf" % (user_name, font_style,)
+        otf_fontpath = "/usr/share/fonts/truetype/%s.otf" % (user_name, font_style,)
 
     if os.path.isfile(ttf_fontpath):
         return ImageFont.truetype(ttf_fontpath, font_size)
@@ -176,7 +182,10 @@ def make_thumbnail_image(text, font_size, font_color, font_style, img_name, img_
 
     r, g, b, a = make_colorcode(font_color)  # a is always zero.
 
-    BG_img = cv2.imread("C:/Users/%s/Desktop/%s" % (user_name, img_name))
+    if platform_name == "Windows":
+        BG_img = cv2.imread("C:/Users/%s/Desktop/%s" % (user_name, img_name))
+    elif platform_name == "Linux":
+        BG_img = cv2.imread("/home/%s/%s" % (user_name, img_name))
 
     BG_img = image_resize(BG_img, img_size)
 
@@ -194,7 +203,7 @@ class DEBUG(Enum):
     PREVIEW_THUNBNAIL = 4
 
 
-debug = DEBUG.LOAD_VIDEO_LIST
+debug = DEBUG.UPDATE_THUMBNAIL
 
 if __name__ == "__main__":
 
@@ -232,7 +241,11 @@ if __name__ == "__main__":
                     img_size=0.1,
                 )
                 try:
-                    dir_name = "C:/Users/%s/Desktop/thumbnail_images" % user_name
+                    if platform_name == "Windows":
+                        dir_name = "C:/Users/%s/Desktop/thumbnail_images" % user_name
+                    elif platform_name == "Linux":
+                        dir_name = "/home/%s/thumbnail_images" % user_name
+
                     if not (os.path.isdir(dir_name)):
                         os.makedirs(os.path.join(dir_name))
                 except OSError as e:
