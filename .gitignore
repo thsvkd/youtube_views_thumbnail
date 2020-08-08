@@ -29,10 +29,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # youtube Oauthv2 json file
-client_secret_206723419567-j31l9eureab62ojm0cp3b3e0pgtqpfdd.apps.googleusercontent.com.json
+client_secrets.json
 
 #youtube api key file
-api_key
+api_key_thsvkd
 
 #Oauthv2 token file
 youtube_api_test.py-oauth2.json

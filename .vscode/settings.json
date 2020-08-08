@@ -1,5 +1,12 @@
 {
     "python:linting.pylintArgs": [
         "--extension-pkg-whitelist=cv2"
-    ]
+    ],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "100"
+    ],
+    "python.linting.banditEnabled": true,
+    "python.linting.enabled": true
 }

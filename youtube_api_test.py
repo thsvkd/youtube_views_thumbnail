@@ -25,7 +25,7 @@ DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-CLIENT_SECRETS_FILE = "client_secret_206723419567-j31l9eureab62ojm0cp3b3e0pgtqpfdd.apps.googleusercontent.com.json"
+CLIENT_SECRETS_FILE = "client_secret.json"
 MISSING_CLIENT_SECRETS_MESSAGE = """
 WARNING: Please configure OAuth 2.0
 
@@ -39,8 +39,9 @@ https://console.developers.google.com/
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""" % os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                   CLIENT_SECRETS_FILE))
+""" % os.path.abspath(
+    os.path.join(os.path.dirname(__file__), CLIENT_SECRETS_FILE)
+)
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
 
@@ -51,13 +52,13 @@ YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
 
 def get_video_list(json_file):
-    json_file = open(json_file, 'r')
+    json_file = open(json_file, "r")
     json_file = json_file.read()
     print(json_file)
 
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-                                   message=MISSING_CLIENT_SECRETS_MESSAGE,
-                                   scope=YOUTUBE_READONLY_SCOPE)
+    flow = flow_from_clientsecrets(
+        CLIENT_SECRETS_FILE, message=MISSING_CLIENT_SECRETS_MESSAGE, scope=YOUTUBE_READONLY_SCOPE
+    )
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
     credentials = storage.get()
@@ -66,15 +67,13 @@ def get_video_list(json_file):
         flags = argparser.parse_args()
         credentials = run_flow(flow, storage, flags)
 
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                    http=credentials.authorize(httplib2.Http()))
+    youtube = build(
+        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())
+    )
 
     # Retrieve the contentDetails part of the channel resource for the
     # authenticated user's channel.
-    channels_response = youtube.channels().list(
-        mine=True,
-        part="contentDetails"
-    ).execute()
+    channels_response = youtube.channels().list(mine=True, part="contentDetails").execute()
 
     for channel in channels_response["items"]:
         # From the API response, extract the playlist ID that identifies the list
@@ -85,9 +84,7 @@ def get_video_list(json_file):
 
         # Retrieve the list of videos uploaded to the authenticated user's channel.
         playlistitems_list_request = youtube.playlistItems().list(
-            playlistId=uploads_list_id,
-            part="snippet",
-            maxResults=50
+            playlistId=uploads_list_id, part="snippet", maxResults=50
         )
 
         while playlistitems_list_request:
@@ -100,25 +97,23 @@ def get_video_list(json_file):
                 print("{} ({})".format(title, video_id))
 
             playlistitems_list_request = youtube.playlistItems().list_next(
-                playlistitems_list_request, playlistitems_list_response)
+                playlistitems_list_request, playlistitems_list_response
+            )
 
         print("end")
 
 
 def youtube_search(options):
-    p = open("api_key")
-    DEVELOPER_KEY = p.readline()
 
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                    developerKey=DEVELOPER_KEY)
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
 
     # Call the search.list method to retrieve results matching the specified
     # query term.
-    search_response = youtube.search().list(
-        q=options.q,
-        part="id,snippet",
-        maxResults=options.max_results
-    ).execute()
+    search_response = (
+        youtube.search()
+        .list(q=options.q, part="id,snippet", maxResults=options.max_results)
+        .execute()
+    )
 
     videos = []
     channels = []
@@ -128,18 +123,41 @@ def youtube_search(options):
     # matching videos, channels, and playlists.
     for search_result in search_response.get("items", []):
         if search_result["id"]["kind"] == "youtube#video":
-            videos.append("%s (%s)" % (search_result["snippet"]["title"],
-                                       search_result["id"]["videoId"]))
+            videos.append(
+                "%s (%s)" % (search_result["snippet"]["title"], search_result["id"]["videoId"])
+            )
         elif search_result["id"]["kind"] == "youtube#channel":
-            channels.append("%s (%s)" % (search_result["snippet"]["title"],
-                                         search_result["id"]["channelId"]))
+            channels.append(
+                "%s (%s)" % (search_result["snippet"]["title"], search_result["id"]["channelId"])
+            )
         elif search_result["id"]["kind"] == "youtube#playlist":
-            playlists.append("%s (%s)" % (search_result["snippet"]["title"],
-                                          search_result["id"]["playlistId"]))
+            playlists.append(
+                "%s (%s)" % (search_result["snippet"]["title"], search_result["id"]["playlistId"])
+            )
 
     print("Videos:\n", "\n".join(videos), "\n")
     print("Channels:\n", "\n".join(channels), "\n")
     print("Playlists:\n", "\n".join(playlists), "\n")
+
+
+def get_authenticated_service(args):
+    flow = flow_from_clientsecrets(
+        CLIENT_SECRETS_FILE, scope=YOUTUBE_READ_WRITE_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE
+    )
+
+    storage = Storage("%s-oauth2.json" % sys.argv[0])
+    credentials = storage.get()
+
+    if credentials is None or credentials.invalid:
+        credentials = run_flow(flow, storage, args)
+
+    return build(
+        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())
+    )
+
+
+def upload_thumbnail(youtube, video_id, file):
+    youtube.thumbnails().set(videoId=video_id, media_body=file).execute()
 
 
 if __name__ == "__main__":

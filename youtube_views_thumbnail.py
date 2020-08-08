@@ -44,14 +44,15 @@ https://console.developers.google.com/
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""" % os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                   CLIENT_SECRETS_FILE))
+""" % os.path.abspath(
+    os.path.join(os.path.dirname(__file__), CLIENT_SECRETS_FILE)
+)
 
 
 def get_authenticated_service(args):
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-                                   scope=YOUTUBE_READ_WRITE_SCOPE,
-                                   message=MISSING_CLIENT_SECRETS_MESSAGE)
+    flow = flow_from_clientsecrets(
+        CLIENT_SECRETS_FILE, scope=YOUTUBE_READ_WRITE_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE
+    )
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
     credentials = storage.get()
@@ -59,28 +60,27 @@ def get_authenticated_service(args):
     if credentials is None or credentials.invalid:
         credentials = run_flow(flow, storage, args)
 
-    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                 http=credentials.authorize(httplib2.Http()))
+    return build(
+        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())
+    )
+
 
 # Call the API's thumbnails.set method to upload the thumbnail image and
 # associate it with the appropriate video.
 
 
 def upload_thumbnail(youtube, video_id, file):
-    youtube.thumbnails().set(
-        videoId=video_id,
-        media_body=file
-    ).execute()
+    youtube.thumbnails().set(videoId=video_id, media_body=file).execute()
 
 
 if __name__ == "__main__":
     # The "videoid" option specifies the YouTube video ID that uniquely
     # identifies the video for which the thumbnail image is being updated.
-    argparser.add_argument("--video-id", required=True,
-                           help="ID of video whose thumbnail you're updating.")
+    argparser.add_argument(
+        "--video-id", required=True, help="ID of video whose thumbnail you're updating."
+    )
     # The "file" option specifies the path to the thumbnail image file.
-    argparser.add_argument("--file", required=True,
-                           help="Path to thumbnail image file.")
+    argparser.add_argument("--file", required=True, help="Path to thumbnail image file.")
     args = argparser.parse_args()
 
     if not os.path.exists(args.file):
