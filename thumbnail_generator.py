@@ -247,6 +247,7 @@ if __name__ == "__main__":
                     final_thumbnail,
                 )
 
+                #
                 # if not os.path.exists(args.file):
                 #     exit("Please specify a valid file using the --file= parameter.")
 
