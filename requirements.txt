@@ -1,0 +1,7 @@
+numpy
+datetime
+python-opencv
+pillow
+httplib2
+apiclient
+oauth2client
