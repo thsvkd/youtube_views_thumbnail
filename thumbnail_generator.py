@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 from enum import Enum
 import getpass
-import os.path
+import os
 import sys
 import cv2
 from PIL import ImageFont, ImageDraw, Image
@@ -106,8 +106,14 @@ def get_font_truetype(font_size, font_style):
             font_style,
         )
     elif platform_name == "Linux":
-        ttf_fontpath = "/usr/share/fonts/truetype/%s.ttf" % (user_name, font_style,)
-        otf_fontpath = "/usr/share/fonts/truetype/%s.otf" % (user_name, font_style,)
+        for (path, dir, files) in os.walk("/usr/share/fonts"):
+            for filename in files:
+                ext = filename.split(".")
+                if ext[0] == font_style:
+                    print("%s/%s" % (path, filename))
+
+        # ttf_fontpath = "/usr/share/fonts/truetype/%s.ttf" % (font_style,)
+        # otf_fontpath = "/usr/share/fonts/truetype/%s.otf" % (font_style,)
 
     if os.path.isfile(ttf_fontpath):
         return ImageFont.truetype(ttf_fontpath, font_size)
@@ -215,8 +221,8 @@ if __name__ == "__main__":
             text="이 영상의 조회수는 123입니다",
             font_size=52,
             font_color="ffd36b",
-            font_style="NotoSansCJKjp-Bold",
-            img_name="IMG_2330.JPG",
+            font_style="NotoSansLao-Regular",
+            img_name="IMG_2330_2.JPG",
             img_size=0.1,
         )
         show_preview_image(final_thumbnail)
@@ -237,7 +243,7 @@ if __name__ == "__main__":
                     font_size=52,
                     font_color="ffd36b",
                     font_style="NotoSansCJKjp-Bold",
-                    img_name="IMG_2330.JPG",
+                    img_name="IMG_2330_2.JPG",
                     img_size=0.1,
                 )
                 try:
@@ -271,4 +277,3 @@ if __name__ == "__main__":
                 #     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
                 # else:
                 #     print("The custom thumbnail was successfully set.")
-
