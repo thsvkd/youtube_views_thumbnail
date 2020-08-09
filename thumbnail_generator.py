@@ -18,9 +18,6 @@ from oauth2client.file import Storage
 user_name = getpass.getuser()
 platform_name = platform.system()
 
-youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd", "r").readline()
-youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
-
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
 YOUTUBE_READ_WRITE_SCOPE = "https://www.googleapis.com/auth/youtube"
@@ -213,6 +210,8 @@ class DEBUG(Enum):
 
 
 debug = DEBUG.PREVIEW_THUNBNAIL
+youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd", "r").readline()
+youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
 
 if __name__ == "__main__":
 
