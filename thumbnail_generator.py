@@ -92,33 +92,34 @@ def make_colorcode(code):
     return [r, g, b, a]
 
 
+def fint_font_file(root, font_style):
+    for (path, dir, files) in os.walk(root):
+        for filename in files:
+            ext = filename.split(".")
+            if ext[0] == font_style:
+                fontpath = "%s/%s" % (path, filename)
+    return fontpath
+
+
 def get_font_truetype(font_size, font_style):
     # This function returns the font that corresponds to that font when you enter a font name.
     # (The path only applies to Windows!)
 
-    if platform_name == "Windows":
-        ttf_fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.ttf" % (
-            user_name,
-            font_style,
-        )
-        otf_fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.otf" % (
-            user_name,
-            font_style,
-        )
-    elif platform_name == "Linux":
-        for (path, dir, files) in os.walk("/usr/share/fonts"):
-            for filename in files:
-                ext = filename.split(".")
-                if ext[0] == font_style:
-                    print("%s/%s" % (path, filename))
+    fontpath = fint_font_file("fonts", font_style)
+    if len(fontpath) == 0:
+        if platform_name == "Windows":
+            fontpath = "C:/Users/%s/AppData/Local/Microsoft/Windows/Fonts/%s.ttf" % (
+                user_name,
+                font_style,
+            )
+        elif platform_name == "Linux":
+            fontpath = fint_font_file("/usr/share/fonts", font_style)
 
         # ttf_fontpath = "/usr/share/fonts/truetype/%s.ttf" % (font_style,)
         # otf_fontpath = "/usr/share/fonts/truetype/%s.otf" % (font_style,)
 
-    if os.path.isfile(ttf_fontpath):
-        return ImageFont.truetype(ttf_fontpath, font_size)
-    elif os.path.isfile(otf_fontpath):
-        return ImageFont.truetype(otf_fontpath, font_size)
+    if os.path.isfile(fontpath):
+        return ImageFont.truetype(fontpath, font_size)
     else:
         print("can't load font. plz check font name")
         exit()
@@ -129,6 +130,7 @@ def drawtext(BG_img, text, rgba):
 
     font = text[1]
     text = text[0]
+    text = text.split("\n")
     r = rgba[0]
     g = rgba[1]
     b = rgba[2]
@@ -138,13 +140,15 @@ def drawtext(BG_img, text, rgba):
     BG_shape = [BG_w, BG_h, BG_c]
     img_pil = Image.fromarray(BG_img)
     draw = ImageDraw.Draw(img_pil)
-    w, h = font.getsize(text)
-    draw.text(
-        ((int(BG_shape[1]) - w) / 2, ((int(BG_shape[0]) - h) / 2)),
-        text,
-        font=font,
-        fill=(b, g, r, a),
-    )
+
+    for i, text_line in enumerate(text):
+        w, h = font.getsize(text_line)
+        draw.text(
+            ((int(BG_shape[1]) - w) / 2, ((int(BG_shape[0]) - h * len(text)) / 2) + h * i),
+            text_line,
+            font=font,
+            fill=(b, g, r, a),
+        )
 
     return np.array(img_pil)
 
@@ -184,21 +188,20 @@ def image_resize(BG_img, size):
     return BG_img
 
 
-def make_thumbnail_image(text, font_size, font_color, font_style, img_name, img_size):
+def make_thumbnail_image(contents):
 
+    text, font_size, font_color, font_style, img_name, img_size = contents
     r, g, b, a = make_colorcode(font_color)  # a is always zero.
 
-    if platform_name == "Windows":
-        BG_img = cv2.imread("C:/Users/%s/Desktop/%s" % (user_name, img_name))
-    elif platform_name == "Linux":
-        BG_img = cv2.imread("/home/%s/%s" % (user_name, img_name))
+    if len(img_name) != 0:
+        BG_img = cv2.imread(img_name)
+    else:
+        BG_img = cv2.imread("BG_sample.jpg")
 
     BG_img = image_resize(BG_img, img_size)
-
     font = get_font_truetype(font_size=font_size, font_style=font_style)
-
     thumbnail = drawtext(BG_img=BG_img, text=[text, font], rgba=[r, g, b, a])
-    # show_final_thumbnail(BG_img)
+
     return thumbnail
 
 
@@ -209,22 +212,24 @@ class DEBUG(Enum):
     PREVIEW_THUNBNAIL = 4
 
 
-debug = DEBUG.UPDATE_THUMBNAIL
+debug = DEBUG.PREVIEW_THUNBNAIL
 
 if __name__ == "__main__":
+
+    text = "이 영상의 조회수는\n123입니다"
+    font_size = 70
+    font_color = "ffd36b"
+    font_style = "BlackHanSans"
+    img_name = ""
+    img_size = 1
+
+    contents = [text, font_size, font_color, font_style, img_name, img_size]
 
     # youtube = get_authenticated_service(args)
     # upload_thumbnail(youtube, args.video_id, args.file)
 
     if debug == DEBUG.PREVIEW_THUNBNAIL:
-        final_thumbnail = make_thumbnail_image(
-            text="이 영상의 조회수는 123입니다",
-            font_size=52,
-            font_color="ffd36b",
-            font_style="NotoSansLao-Regular",
-            img_name="IMG_2330_2.JPG",
-            img_size=0.1,
-        )
+        final_thumbnail = make_thumbnail_image(contents=contents)
         show_preview_image(final_thumbnail)
     elif debug == DEBUG.LOAD_VIDEO_LIST:
         youtube_API_test.get_video_list(youtube_API_test.CLIENT_SECRETS_FILE)
@@ -238,19 +243,9 @@ if __name__ == "__main__":
         while True:
             today = datetime.today()
             if today.second % 2 == 0:
-                final_thumbnail = make_thumbnail_image(
-                    text="이 영상의 조회수는 123입니다",
-                    font_size=52,
-                    font_color="ffd36b",
-                    font_style="NotoSansCJKjp-Bold",
-                    img_name="IMG_2330_2.JPG",
-                    img_size=0.1,
-                )
+                final_thumbnail = make_thumbnail_image(contents=contents)
                 try:
-                    if platform_name == "Windows":
-                        dir_name = "C:/Users/%s/Desktop/thumbnail_images" % user_name
-                    elif platform_name == "Linux":
-                        dir_name = "/home/%s/thumbnail_images" % user_name
+                    dir_name = "thumbnail_images"
 
                     if not (os.path.isdir(dir_name)):
                         os.makedirs(os.path.join(dir_name))
