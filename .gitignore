@@ -32,7 +32,7 @@ $RECYCLE.BIN/
 client_secrets_thsvkd.json
 
 #youtube api key file
-api_key_thsvkd
+api_key_thsvkd.txt
 
 #Oauthv2 token file
 thumbnail_generator.py-oauth2.json
