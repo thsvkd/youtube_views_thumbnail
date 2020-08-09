@@ -209,6 +209,7 @@ class DEBUG(Enum):
     PREVIEW_THUNBNAIL = 4
 
 
+debug = DEBUG.PREVIEW_THUNBNAIL
 if user_name == "thsxo":
     youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
     youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
