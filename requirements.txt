@@ -1,6 +1,6 @@
 numpy
 datetime
-python-opencv
+opencv-python
 pillow
 httplib2
 apiclient
