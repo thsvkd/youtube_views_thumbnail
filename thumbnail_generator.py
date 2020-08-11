@@ -1,7 +1,10 @@
+#!/usr/bin/python
+
 import platform
 import numpy as np
 from datetime import datetime
 from enum import Enum
+import httplib2
 import getpass
 import os
 import sys
@@ -24,6 +27,8 @@ YOUTUBE_READ_WRITE_SCOPE = "https://www.googleapis.com/auth/youtube"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
+CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
+
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = """
@@ -43,25 +48,6 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
     os.path.join(os.path.dirname(__file__), youtube_API_test.CLIENT_SECRETS_FILE)
 )
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
-
-
-def search_args_parse():
-    argparser.add_argument("--q", help="Search term", default="Google")
-    argparser.add_argument("--max-results", help="Max results", default=25)
-    args = argparser.parse_args()
-
-    return args
-
-
-def thumbnail_args_parse():
-    argparser.add_argument(
-        "--video-id", required=True, help="ID of video whose thumbnail you're updating."
-    )
-    argparser.add_argument("--file", required=True, help="Path to thumbnail image file.")
-    args = argparser.parse_args()
-
-    return args
-
 
 #
 #
@@ -193,13 +179,61 @@ def make_thumbnail_image(contents):
     if len(img_name) != 0:
         BG_img = cv2.imread(img_name)
     else:
-        BG_img = cv2.imread("BG_sample.jpg")
+        BG_img = cv2.imread("BG_sample.png")
 
     BG_img = image_resize(BG_img, img_size)
     font = get_font_truetype(font_size=font_size, font_style=font_style)
     thumbnail = drawtext(BG_img=BG_img, text=[text, font], rgba=[r, g, b, a])
 
     return thumbnail
+
+
+def get_authenticated_service(args):
+    flow = flow_from_clientsecrets(
+        CLIENT_SECRETS_FILE, scope=YOUTUBE_READ_WRITE_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE
+    )
+
+    storage = Storage("%s-oauth2.json" % sys.argv[0])
+    credentials = storage.get()
+
+    if credentials is None or credentials.invalid:
+        credentials = run_flow(flow, storage, args)
+
+    return build(
+        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())
+    )
+
+
+def upload_thumbnail(youtube, video_id, file):
+    youtube.thumbnails().set(videoId=video_id, media_body=file).execute()
+
+
+def get_view_count(youtube, video_id):
+
+    stats = youtube.videos().list(part="statistics, snippet", id=video_id).execute()
+    viewCount = stats["items"][0]["statistics"]["viewCount"]
+
+    print("video view count : %s" % viewCount)
+
+    return viewCount
+
+
+def search_args_parse():
+    argparser.add_argument("--q", help="Search term", default="Google")
+    argparser.add_argument("--max-results", help="Max results", default=25)
+    args = argparser.parse_args()
+
+    return args
+
+
+def thumbnail_args_parse():
+    argparser.add_argument(
+        "--video-id", required=True, help="ID of video whose thumbnail you're updating."
+    )
+    argparser.add_argument("--file", required=True, help="Path to thumbnail image file.")
+    args = argparser.parse_args()
+
+    return args
 
 
 class DEBUG(Enum):
@@ -219,9 +253,13 @@ else:
 
 if __name__ == "__main__":
 
-    text = "이 영상의 조회수는\n123입니다"
-    font_size = 70
-    font_color = "ffd36b"
+    thumbnail_args = thumbnail_args_parse()
+    youtube = get_authenticated_service(thumbnail_args)
+    viewCount = get_view_count(youtube, thumbnail_args.video_id)
+
+    text = "이 영상의 조회수는\n%s 입니다" % viewCount
+    font_size = 300
+    font_color = "ff847c"
     font_style = "BlackHanSans"
     img_name = ""
     img_size = 1
@@ -257,14 +295,29 @@ if __name__ == "__main__":
                         print("Failed to create directory!!!!!")
                         raise
 
-                cv2.imwrite(
-                    dir_name
-                    + "/%04d%02d%02d_%02d%02d%02d.jpg"
-                    % (today.year, today.month, today.day, today.hour, today.minute, today.second),
-                    final_thumbnail,
+                image_path = dir_name + "/%04d%02d%02d_%02d%02d%02d.jpg" % (
+                    today.year,
+                    today.month,
+                    today.day,
+                    today.hour,
+                    today.minute,
+                    today.second,
                 )
 
-                #
+                cv2.imwrite(
+                    image_path, final_thumbnail,
+                )
+
+                if not os.path.exists(image_path):
+                    exit("Please specify a valid file using the --file= parameter.")
+
+                try:
+                    upload_thumbnail(youtube, thumbnail_args.video_id, image_path)
+                except HttpError as e:
+                    print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+                else:
+                    print("The custom thumbnail was successfully set.")
+
                 # if not os.path.exists(args.file):
                 #     exit("Please specify a valid file using the --file= parameter.")
 

@@ -9,7 +9,12 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "args": [],
+            "args": [
+                "--video-id",
+                "eoOgStFXJAI",
+                "--file",
+                "thumbnail_images/20200812_003914.jpg"
+            ],
             "console": "integratedTerminal"
         }
     ]
