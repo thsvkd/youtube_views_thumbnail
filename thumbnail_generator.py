@@ -27,8 +27,6 @@ YOUTUBE_READ_WRITE_SCOPE = "https://www.googleapis.com/auth/youtube"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
-
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = """
@@ -190,7 +188,9 @@ def make_thumbnail_image(contents):
 
 def get_authenticated_service(args):
     flow = flow_from_clientsecrets(
-        CLIENT_SECRETS_FILE, scope=YOUTUBE_READ_WRITE_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE
+        youtube_API_test.CLIENT_SECRETS_FILE,
+        scope=YOUTUBE_READ_WRITE_SCOPE,
+        message=MISSING_CLIENT_SECRETS_MESSAGE,
     )
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
@@ -244,7 +244,7 @@ class DEBUG(Enum):
 
 
 debug = DEBUG.UPDATE_THUMBNAIL
-if user_name == "thsxo":
+if user_name == "thsvkd":
     youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
     youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
 else:
@@ -253,12 +253,16 @@ else:
 
 if __name__ == "__main__":
 
-    thumbnail_args = thumbnail_args_parse()
-    youtube = get_authenticated_service(thumbnail_args)
-    viewCount = get_view_count(youtube, thumbnail_args.video_id)
+    if debug == DEBUG.UPDATE_THUMBNAIL:
+        thumbnail_args = thumbnail_args_parse()
+        youtube = get_authenticated_service(thumbnail_args)
+        viewCount = get_view_count(youtube, thumbnail_args.video_id)
+    elif debug == DEBUG.SEARCH:
+        search_args = search_args_parse()
 
-    text = "이 영상의 조회수는\n%s 입니다!" % viewCount
-    font_size = 300
+    today = datetime.today()
+    text = "이 영상의 조회수는\n%s 입니다 \n 지금 시간은 %02d시 %02d분" % (viewCount, today.hour, today.minute)
+    font_size = 250
     font_color = "ff847c"
     font_style = "BlackHanSans"
     img_name = ""
@@ -266,16 +270,12 @@ if __name__ == "__main__":
 
     contents = [text, font_size, font_color, font_style, img_name, img_size]
 
-    # youtube = get_authenticated_service(args)
-    # upload_thumbnail(youtube, args.video_id, args.file)
-
     if debug == DEBUG.PREVIEW_THUNBNAIL:
         final_thumbnail = make_thumbnail_image(contents=contents)
         show_preview_image(final_thumbnail)
     elif debug == DEBUG.LOAD_VIDEO_LIST:
         youtube_API_test.get_video_list(youtube_API_test.CLIENT_SECRETS_FILE)
     elif debug == DEBUG.SEARCH:
-        args = search_args_parse()
         try:
             youtube_API_test.youtube_search(args)
         except HttpError as e:
@@ -283,7 +283,12 @@ if __name__ == "__main__":
     elif debug == DEBUG.UPDATE_THUMBNAIL:
         while True:
             today = datetime.today()
-            if today.second % 2 == 0:
+            if today.second % 60 == 0:
+                contents[0] = "이 영상의 조회수는\n%s 입니다\n지금 시간은 %02d시 %02d분" % (
+                    viewCount,
+                    today.hour,
+                    today.minute,
+                )
                 final_thumbnail = make_thumbnail_image(contents=contents)
                 try:
                     dir_name = "thumbnail_images"
@@ -317,6 +322,7 @@ if __name__ == "__main__":
                     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
                 else:
                     print("The custom thumbnail was successfully set.")
+                    os.remove(image_path)
 
                 # if not os.path.exists(args.file):
                 #     exit("Please specify a valid file using the --file= parameter.")

@@ -21,11 +21,11 @@ from oauth2client.file import Storage
 #
 #
 
-DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
+DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
+CLIENT_SECRETS_FILE = ""
 MISSING_CLIENT_SECRETS_MESSAGE = """
 WARNING: Please configure OAuth 2.0
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
 
-    get_video_list("client_secrets_thsvkd.json")
+    get_video_list(CLIENT_SECRETS_FILE)
 
     # try:
     #     youtube_search(args)
