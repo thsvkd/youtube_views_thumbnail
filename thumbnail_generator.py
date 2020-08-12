@@ -50,7 +50,7 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
 #
-#
+###
 #
 #
 #
@@ -243,7 +243,7 @@ class DEBUG(Enum):
     PREVIEW_THUNBNAIL = 4
 
 
-debug = DEBUG.PREVIEW_THUNBNAIL
+debug = DEBUG.UPDATE_THUMBNAIL
 if user_name == "thsxo":
     youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
     youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
@@ -257,7 +257,7 @@ if __name__ == "__main__":
     youtube = get_authenticated_service(thumbnail_args)
     viewCount = get_view_count(youtube, thumbnail_args.video_id)
 
-    text = "이 영상의 조회수는\n%s 입니다" % viewCount
+    text = "이 영상의 조회수는\n%s 입니다!" % viewCount
     font_size = 300
     font_color = "ff847c"
     font_style = "BlackHanSans"
