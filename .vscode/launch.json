@@ -13,7 +13,7 @@
                 "--video-id",
                 "eoOgStFXJAI",
                 "--file",
-                "thumbnail_images/20200812_003914.jpg"
+                "BG_sample.png"
             ],
             "console": "integratedTerminal"
         }
