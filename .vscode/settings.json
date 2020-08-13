@@ -8,5 +8,6 @@
         "100"
     ],
     "python.linting.banditEnabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "python.pythonPath": "C:\\Users\\thsxo\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
 }
