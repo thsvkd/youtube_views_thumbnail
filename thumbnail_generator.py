@@ -21,6 +21,7 @@ from oauth2client.file import Storage
 user_name = getpass.getuser()
 platform_name = platform.system()
 counter = 0
+update_term = 60
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
@@ -303,7 +304,7 @@ if __name__ == "__main__":
         while True:
             counter %= 8
             today = datetime.today()
-            if today.second % 10 == 0:
+            if today.second % update_term == 0:
                 print("%d project activated" % counter)
                 viewCount = get_view_count(youtube[counter], thumbnail_args.video_id)
                 contents[0] = "이 영상의 조회수는\n%s 입니다\n지금 시간은 %02d시 %02d분" % (
