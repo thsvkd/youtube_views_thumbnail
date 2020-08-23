@@ -267,7 +267,8 @@ if user_name == "thsxo":
 
 else:
     yt_api.DEVELOPER_KEY = open("api_key.txt", "r").readline()
-    yt_api.CLIENT_SECRETS_FILE[0] = "client_secrets.json"
+    for i in range(8):
+        yt_api.CLIENT_SECRETS_FILE[i] = "client_secrets%d.json" % (i + 1)
 
 if __name__ == "__main__":
 
