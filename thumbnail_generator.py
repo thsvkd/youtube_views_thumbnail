@@ -10,7 +10,7 @@ import os
 import sys
 import cv2
 from PIL import ImageFont, ImageDraw, Image
-import youtube_API_test
+import youtube_API_test as yt_api
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
@@ -44,7 +44,7 @@ https://console.developers.google.com/
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """ % os.path.abspath(
-    os.path.join(os.path.dirname(__file__), youtube_API_test.CLIENT_SECRETS_FILE[0])
+    os.path.join(os.path.dirname(__file__), yt_api.CLIENT_SECRETS_FILE[0])
 )
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
@@ -196,7 +196,7 @@ def get_authenticated_service(args):
     for i in range(8):
         flow.append(
             flow_from_clientsecrets(
-                youtube_API_test.CLIENT_SECRETS_FILE[i],
+                yt_api.CLIENT_SECRETS_FILE[i],
                 scope=YOUTUBE_READ_WRITE_SCOPE,
                 message=MISSING_CLIENT_SECRETS_MESSAGE,
             )
@@ -261,13 +261,13 @@ class DEBUG(Enum):
 debug = DEBUG.UPDATE_THUMBNAIL
 
 if user_name == "thsxo":
-    youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
+    yt_api.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
     for i in range(8):
-        youtube_API_test.CLIENT_SECRETS_FILE[i] = "client_secrets_thsvkd%d.json" % (i + 1)
+        yt_api.CLIENT_SECRETS_FILE[i] = "client_secrets_thsvkd%d.json" % (i + 1)
 
 else:
-    youtube_API_test.DEVELOPER_KEY = open("api_key.txt", "r").readline()
-    youtube_API_test.CLIENT_SECRETS_FILE[0] = "client_secrets.json"
+    yt_api.DEVELOPER_KEY = open("api_key.txt", "r").readline()
+    yt_api.CLIENT_SECRETS_FILE[0] = "client_secrets.json"
 
 if __name__ == "__main__":
 
@@ -292,10 +292,10 @@ if __name__ == "__main__":
         final_thumbnail = make_thumbnail_image(contents=contents)
         show_preview_image(final_thumbnail)
     elif debug == DEBUG.LOAD_VIDEO_LIST:
-        youtube_API_test.get_video_list(youtube_API_test.CLIENT_SECRETS_FILE)
+        yt_api.get_video_list(yt_api.CLIENT_SECRETS_FILE)
     elif debug == DEBUG.SEARCH:
         try:
-            youtube_API_test.youtube_search(args)
+            yt_api.youtube_search(args)
         except HttpError as e:
             print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
     elif debug == DEBUG.UPDATE_THUMBNAIL:
