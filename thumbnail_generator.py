@@ -20,6 +20,7 @@ from oauth2client.file import Storage
 
 user_name = getpass.getuser()
 platform_name = platform.system()
+counter = 0
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
@@ -43,7 +44,7 @@ https://console.developers.google.com/
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """ % os.path.abspath(
-    os.path.join(os.path.dirname(__file__), youtube_API_test.CLIENT_SECRETS_FILE)
+    os.path.join(os.path.dirname(__file__), youtube_API_test.CLIENT_SECRETS_FILE[0])
 )
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
@@ -187,21 +188,35 @@ def make_thumbnail_image(contents):
 
 
 def get_authenticated_service(args):
-    flow = flow_from_clientsecrets(
-        youtube_API_test.CLIENT_SECRETS_FILE,
-        scope=YOUTUBE_READ_WRITE_SCOPE,
-        message=MISSING_CLIENT_SECRETS_MESSAGE,
-    )
+    flow = []
+    storage = []
+    credentials = []
+    builds = []
 
-    storage = Storage("%s-oauth2.json" % sys.argv[0])
-    credentials = storage.get()
+    for i in range(8):
+        flow.append(
+            flow_from_clientsecrets(
+                youtube_API_test.CLIENT_SECRETS_FILE[i],
+                scope=YOUTUBE_READ_WRITE_SCOPE,
+                message=MISSING_CLIENT_SECRETS_MESSAGE,
+            )
+        )
 
-    if credentials is None or credentials.invalid:
-        credentials = run_flow(flow, storage, args)
+        storage.append(Storage("%s%d-oauth2.json" % (sys.argv[0], i + 1)))
+        credentials.append(storage[i].get())
 
-    return build(
-        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())
-    )
+        if credentials[i] is None or credentials[i].invalid:
+            credentials[i] = run_flow(flow[i], storage[i], args)
+
+        builds.append(
+            build(
+                YOUTUBE_API_SERVICE_NAME,
+                YOUTUBE_API_VERSION,
+                http=credentials[i].authorize(httplib2.Http()),
+            )
+        )
+
+    return builds
 
 
 def upload_thumbnail(youtube, video_id, file):
@@ -244,19 +259,22 @@ class DEBUG(Enum):
 
 
 debug = DEBUG.UPDATE_THUMBNAIL
+
 if user_name == "thsxo":
     youtube_API_test.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
-    youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets_thsvkd.json"
+    for i in range(8):
+        youtube_API_test.CLIENT_SECRETS_FILE[i] = "client_secrets_thsvkd%d.json" % (i + 1)
+
 else:
     youtube_API_test.DEVELOPER_KEY = open("api_key.txt", "r").readline()
-    youtube_API_test.CLIENT_SECRETS_FILE = "client_secrets.json"
+    youtube_API_test.CLIENT_SECRETS_FILE[0] = "client_secrets.json"
 
 if __name__ == "__main__":
 
     if debug == DEBUG.UPDATE_THUMBNAIL:
         thumbnail_args = thumbnail_args_parse()
         youtube = get_authenticated_service(thumbnail_args)
-        viewCount = get_view_count(youtube, thumbnail_args.video_id)
+        viewCount = get_view_count(youtube[0], thumbnail_args.video_id)
     elif debug == DEBUG.SEARCH:
         search_args = search_args_parse()
 
@@ -282,8 +300,11 @@ if __name__ == "__main__":
             print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
     elif debug == DEBUG.UPDATE_THUMBNAIL:
         while True:
+            counter %= 8
             today = datetime.today()
-            if today.second % 60 == 0:
+            if today.second % 10 == 0:
+                print("%d project activated" % counter)
+                viewCount = get_view_count(youtube[counter], thumbnail_args.video_id)
                 contents[0] = "이 영상의 조회수는\n%s 입니다\n지금 시간은 %02d시 %02d분" % (
                     viewCount,
                     today.hour,
@@ -317,13 +338,14 @@ if __name__ == "__main__":
                     exit("Please specify a valid file using the --file= parameter.")
 
                 try:
-                    upload_thumbnail(youtube, thumbnail_args.video_id, image_path)
+                    upload_thumbnail(youtube[counter], thumbnail_args.video_id, image_path)
                 except HttpError as e:
                     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
                 else:
                     print("The custom thumbnail was successfully set.")
                     os.remove(image_path)
 
+                counter += 1
                 # if not os.path.exists(args.file):
                 #     exit("Please specify a valid file using the --file= parameter.")
 

@@ -25,7 +25,7 @@ DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-CLIENT_SECRETS_FILE = ""
+CLIENT_SECRETS_FILE = ["" for _ in range(8)]
 MISSING_CLIENT_SECRETS_MESSAGE = """
 WARNING: Please configure OAuth 2.0
 
@@ -40,7 +40,7 @@ https://console.developers.google.com/
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """ % os.path.abspath(
-    os.path.join(os.path.dirname(__file__), CLIENT_SECRETS_FILE)
+    os.path.join(os.path.dirname(__file__), CLIENT_SECRETS_FILE[0])
 )
 YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
 
@@ -57,7 +57,7 @@ def get_video_list(json_file):
     print(json_file)
 
     flow = flow_from_clientsecrets(
-        CLIENT_SECRETS_FILE, message=MISSING_CLIENT_SECRETS_MESSAGE, scope=YOUTUBE_READONLY_SCOPE
+        CLIENT_SECRETS_FILE[0], message=MISSING_CLIENT_SECRETS_MESSAGE, scope=YOUTUBE_READONLY_SCOPE
     )
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
@@ -142,7 +142,9 @@ def youtube_search(options):
 
 def get_authenticated_service(args):
     flow = flow_from_clientsecrets(
-        CLIENT_SECRETS_FILE, scope=YOUTUBE_READ_WRITE_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE
+        CLIENT_SECRETS_FILE[0],
+        scope=YOUTUBE_READ_WRITE_SCOPE,
+        message=MISSING_CLIENT_SECRETS_MESSAGE,
     )
 
     storage = Storage("%s-oauth2.json" % sys.argv[0])
@@ -165,7 +167,7 @@ if __name__ == "__main__":
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
 
-    get_video_list(CLIENT_SECRETS_FILE)
+    get_video_list(CLIENT_SECRETS_FILE[0])
 
     # try:
     #     youtube_search(args)

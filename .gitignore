@@ -29,7 +29,14 @@ $RECYCLE.BIN/
 *.lnk
 
 # youtube Oauthv2 json file
-client_secrets_thsvkd.json
+client_secrets_thsvkd1.json
+client_secrets_thsvkd2.json
+client_secrets_thsvkd3.json
+client_secrets_thsvkd4.json
+client_secrets_thsvkd5.json
+client_secrets_thsvkd6.json
+client_secrets_thsvkd7.json
+client_secrets_thsvkd8.json
 
 #youtube api key file
 api_key_thsvkd.txt
