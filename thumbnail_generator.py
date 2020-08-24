@@ -344,7 +344,17 @@ if __name__ == "__main__":
                 except HttpError as e:
                     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
                 else:
-                    print("The custom thumbnail was successfully set.")
+                    print(
+                        "[%04d/%02d/%02d %02d:%02d:%02d] The custom thumbnail was successfully set."
+                        % (
+                            today.year,
+                            today.month,
+                            today.day,
+                            today.hour,
+                            today.minute,
+                            today.second,
+                        )
+                    )
                     os.remove(image_path)
 
                 counter += 1
