@@ -226,7 +226,10 @@ def upload_thumbnail(youtube, video_id, file):
 
 def get_view_count(youtube, video_id):
 
-    stats = youtube.videos().list(part="statistics, snippet", id=video_id).execute()
+    try:
+        stats = youtube.videos().list(part="statistics, snippet", id=video_id).execute()
+    except HttpError as e:
+        pass
     viewCount = stats["items"][0]["statistics"]["viewCount"]
 
     print("video view count : %s" % viewCount)
