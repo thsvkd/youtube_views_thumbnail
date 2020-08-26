@@ -21,7 +21,8 @@ from oauth2client.file import Storage
 user_name = getpass.getuser()
 platform_name = platform.system()
 counter = 0
-update_term = 60
+update_term = 120
+projects_num = 4
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
@@ -194,7 +195,7 @@ def get_authenticated_service(args):
     credentials = []
     builds = []
 
-    for i in range(8):
+    for i in range(projects_num):
         flow.append(
             flow_from_clientsecrets(
                 yt_api.CLIENT_SECRETS_FILE[i],
@@ -267,12 +268,12 @@ debug = DEBUG.UPDATE_THUMBNAIL
 
 if user_name == "thsxo":
     yt_api.DEVELOPER_KEY = open("api_key_thsvkd.txt", "r").readline()
-    for i in range(8):
+    for i in range(projects_num):
         yt_api.CLIENT_SECRETS_FILE[i] = "client_secrets_thsvkd%d.json" % (i + 1)
 
 else:
     yt_api.DEVELOPER_KEY = open("api_key.txt", "r").readline()
-    for i in range(8):
+    for i in range(projects_num):
         yt_api.CLIENT_SECRETS_FILE[i] = "client_secrets%d.json" % (i + 1)
 
 if __name__ == "__main__":
@@ -280,7 +281,7 @@ if __name__ == "__main__":
     if debug == DEBUG.UPDATE_THUMBNAIL:
         thumbnail_args = thumbnail_args_parse()
         youtube = get_authenticated_service(thumbnail_args)
-        viewCount = get_view_count(youtube[0], thumbnail_args.video_id)
+        viewCount = get_view_count(youtube[counter], thumbnail_args.video_id)
     elif debug == DEBUG.SEARCH:
         search_args = search_args_parse()
 
@@ -306,9 +307,9 @@ if __name__ == "__main__":
             print("An HTTP error {} occurred:\n{}".format(e.resp.status, e.content))
     elif debug == DEBUG.UPDATE_THUMBNAIL:
         while True:
-            counter %= 8
+            counter %= projects_num
             today = datetime.today()
-            if today.second % update_term == 0:
+            if ((today.minute * 60) + today.second) % update_term == 0:
                 print("%d project activated" % counter)
                 viewCount = get_view_count(youtube[counter], thumbnail_args.video_id)
                 contents[0] = "이 영상의 조회수는\n%s 입니다\n지금 시간은 %02d시 %02d분" % (
