@@ -231,6 +231,7 @@ def get_view_count(youtube, video_id):
     try:
         stats = youtube.videos().list(part="statistics, snippet", id=video_id).execute()
     except HttpError as e:
+        print("get_view_count exception!!!")
         pass
     viewCount = stats["items"][0]["statistics"]["viewCount"]
 
