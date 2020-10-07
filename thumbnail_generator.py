@@ -8,6 +8,7 @@ import httplib2
 import getpass
 import os
 import sys
+import errno
 import cv2
 from PIL import ImageFont, ImageDraw, Image
 import youtube_API_test as yt_api
@@ -230,9 +231,9 @@ def get_view_count(youtube, video_id):
     stats = 0
     try:
         stats = youtube.videos().list(part="statistics, snippet", id=video_id).execute()
-    except HttpError as e:
-        print("get_view_count exception!!!")
-        pass
+    except IOError as e:
+        if e.errno == errno.EPIPE:
+            pass
     viewCount = stats["items"][0]["statistics"]["viewCount"]
 
     print("video view count : %s" % viewCount)
@@ -288,7 +289,7 @@ if __name__ == "__main__":
 
     today = datetime.today()
     text = "이 영상의 조회수는\n%s 입니다 \n 지금 시간은 %02d시 %02d분" % (viewCount, today.hour, today.minute)
-    font_size = 250
+    font_size = 280
     font_color = "ff847c"
     font_style = "BlackHanSans"
     img_name = ""
@@ -310,14 +311,18 @@ if __name__ == "__main__":
         while True:
             counter %= projects_num
             today = datetime.today()
+            # if today.minute % 2 == 0 and today.second % 60:
             if ((today.minute * 60) + today.second) % update_term == 0:
                 print("%d project activated" % counter)
                 viewCount = get_view_count(youtube[counter], thumbnail_args.video_id)
-                contents[0] = "이 영상의 조회수는\n%s 입니다\n지금 시간은 %02d시 %02d분" % (
-                    viewCount,
-                    today.hour,
-                    today.minute,
-                )
+                # contents[0] = "이 영상의 조회수는\n%s 입니다\n지금 시간은 %02d시 %02d분" % (
+                #     viewCount,
+                #     today.hour,
+                #     today.minute,
+                # )
+
+                contents[0] = "이 영상의 조회수는\n%s 입니다" % viewCount
+
                 final_thumbnail = make_thumbnail_image(contents=contents)
                 try:
                     dir_name = "thumbnail_images"

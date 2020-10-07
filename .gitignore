@@ -29,14 +29,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # youtube Oauthv2 json file
-client_secrets_thsvkd1.json
-client_secrets_thsvkd2.json
-client_secrets_thsvkd3.json
-client_secrets_thsvkd4.json
-client_secrets_thsvkd5.json
-client_secrets_thsvkd6.json
-client_secrets_thsvkd7.json
-client_secrets_thsvkd8.json
+client_secrets1.json
+client_secrets2.json
+client_secrets3.json
+client_secrets4.json
 
 #youtube api key file
 api_key_thsvkd.txt
@@ -52,6 +48,7 @@ thumbnail_generator.py7-oauth2.json
 thumbnail_generator.py8-oauth2.json
 youtube_api_test.py-oauth2.json
 
-read me image/
+*.jpg
+__pycache__
 # End of https://www.toptal.com/developers/gitignore/api/windows
 #
