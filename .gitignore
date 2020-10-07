@@ -49,6 +49,7 @@ thumbnail_generator.py8-oauth2.json
 youtube_api_test.py-oauth2.json
 
 *.jpg
+*.pyc
 __pycache__
 # End of https://www.toptal.com/developers/gitignore/api/windows
 #
