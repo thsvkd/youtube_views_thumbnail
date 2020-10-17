@@ -251,6 +251,7 @@ def get_view_count(youtube, video_id):
     if type(stats) == type(1):
         pass
     else:
+        viewCount = stats["items"][0]["statistics"]["viewCount"]
         print("video view count : %s" % viewCount)
 
     return viewCount
