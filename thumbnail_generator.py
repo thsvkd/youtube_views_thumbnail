@@ -229,14 +229,29 @@ def upload_thumbnail(youtube, video_id, file):
 def get_view_count(youtube, video_id):
 
     stats = 0
+    viewCount = 0
+
     try:
         stats = youtube.videos().list(part="statistics, snippet", id=video_id).execute()
     except IOError as e:
         if e.errno == errno.EPIPE:
             pass
-    viewCount = stats["items"][0]["statistics"]["viewCount"]
 
-    print("video view count : %s" % viewCount)
+    # print("============[DEBUG MODE]=============")
+    # print("stats : \n")
+    # print(stats)
+    # print("stats[items] : \n")
+    # print(stats["items"])
+    # print('stats["items"][0] : \n')
+    # print(stats["items"][0])
+    # print('stats["items"][0]["statistics"] : \n')
+    # print(stats["items"][0]["statistics"])
+    # print("============[DEBUG MODE]=============\n")
+
+    if type(stats) == type(1):
+        pass
+    else:
+        print("video view count : %s" % viewCount)
 
     return viewCount
 
