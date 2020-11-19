@@ -1,6 +1,6 @@
 # youtube_views_thumbnail
 
-### Real-time thumbnail upload program using YouTubeAPI 
+Real-time thumbnail upload program using YouTubeAPI 
 <br>
 
 # build & install
